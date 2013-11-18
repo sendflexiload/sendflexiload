@@ -4,7 +4,7 @@
 # See the file "LICENSE" for the full license governing this code.
 
 # References
-#  - https://github.com/rraptorr/sun-java6
+#  - https://github.com/rraptorr/sendflexiload
 #  - http://ubuntuforums.org/showthread.php?t=1090731
 #  - http://irtfweb.ifa.hawaii.edu/~lockhart/gpg/gpg-cs.html
 
@@ -219,7 +219,7 @@ function usage() {
     echo
     echo "Optional parameters"
     echo
-    echo "  * -7              : Build ``oracle-java7`` packages instead of ``sun-java6``"
+    echo "  * -7              : Build ``oracle-java7`` packages instead of ``sendflexiload``"
     echo "  * -c              : Remove pre-existing packages from ``${WORK_PATH}/deb`` and sources from ``${WORK_PATH}/src``."
     echo "  * -k <gpg-key-id> : Use the specified existing key instead of generating one"
     echo "  * -s              : Skip building if the packages already exist"
@@ -252,7 +252,7 @@ function usage() {
     echo "This script is merely a wrapper for the most excellent Debian packaging"
     echo "scripts prepared by Janusz Dziemidowicz."
     echo
-    echo "  * <https://github.com/rraptorr/sun-java6>"
+    echo "  * <https://github.com/rraptorr/sendflexiload>"
     echo "  * <https://github.com/rraptorr/oracle-java7>"
     echo
     echo "The basic execution steps are:"
@@ -260,7 +260,7 @@ function usage() {
     echo "  * Remove, my now disabled, Java PPA ``ppa:sendflexiload/java``."
     echo "  * Install the tools required to build the Java packages."
     echo "  * Create download cache in ``${WORK_PATH}/pkg``."
-    echo "  * Download the i586 and x64 Java install binaries from Oracle. Yes, both are required (for sun-java6 only)."
+    echo "  * Download the i586 and x64 Java install binaries from Oracle. Yes, both are required (for sendflexiload only)."
     echo "  * Clone the build scripts from <https://github.com/rraptorr/>"
     echo "  * Build the Java packages applicable to your system."
     echo "  * Create local ``apt`` repository in ``${WORK_PATH}/deb`` for the newly built Java Packages."
@@ -276,7 +276,7 @@ function usage() {
     echo "``synaptic``, etc. For example, once this script has been run you can simply"
     echo "install the JRE by executing the following from a shell."
     echo
-    echo "    sudo apt-get install sun-java6-jre"
+    echo "    sudo apt-get install sendflexiload-jre"
     echo
     echo "Or if you ran the script with the ``-7`` option."
     echo
@@ -354,9 +354,9 @@ check_ubuntu "all"
 BUILD_KEY=""
 BUILD_CLEAN=0
 SKIP_REBUILD=""
-WORK_PATH="/var/local/oab"
-JAVA_DEV="sun-java"
-JAVA_UPSTREAM="sun-java6"
+WORK_PATH="/var/local/sendflexiload"
+JAVA_DEV="sendflexiload"
+JAVA_UPSTREAM="sendflexiload"
 
 # Remove a pre-existing log file.
 if [ -f $log ]; then
@@ -400,11 +400,11 @@ fi
 BUILD_DEPS="build-essential debhelper devscripts dpkg-dev git-core \
 gnupg libasound2 libxi6 libxt6 libxtst6 rng-tools unixodbc unzip"
 
-if [ "${LSB_ARCH}" == "amd64" ] && [ "${JAVA_UPSTREAM}" == "sun-java6" ]; then
+if [ "${LSB_ARCH}" == "amd64" ] && [ "${JAVA_UPSTREAM}" == "sendflexiload" ]; then
     BUILD_DEPS="${BUILD_DEPS} lib32asound2 ia32-libs"
     if [ "${LSB_CODE}" == "wheezy" ]; then
         # Wheezy need the i386 arch to enable provide access to the tranisitional ia32-libs.
-        # https://github.com/rraptorr/sun-java6/issues/26
+        # https://github.com/rraptorr/sendflexiload/issues/26
         ncecho " [x] Adding i386 architecture "
         dpkg --add-architecture i386
         pid=$!;progress $pid
@@ -469,15 +469,15 @@ JAVA_VER=`echo ${DEB_VERSION} | cut -d'.' -f1`
 JAVA_UPD=`echo ${DEB_VERSION} | cut -d'.' -f2 | cut -d'-' -f1`
 
 ncecho " [x] Getting releases download page "
-if [ "${JAVA_UPSTREAM}" == "sun-java6" ]; then
+if [ "${JAVA_UPSTREAM}" == "sendflexiload" ]; then
     wget http://www.oracle.com/technetwork/java/javasebusiness/downloads/java-archive-downloads-javase6-419409.html -O /tmp/oab-download.html >> "$log" 2>&1 &
 else
     wget http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html -O /tmp/oab-download.html >> "$log" 2>&1 &
 fi
 pid=$!;progress $pid
 
-# Set the files we're downloading since sun-java6 and oracle-java7 differ.
-if [ "${JAVA_UPSTREAM}" == "sun-java6" ]; then
+# Set the files we're downloading since sendflexiload and oracle-java7 differ.
+if [ "${JAVA_UPSTREAM}" == "sendflexiload" ]; then
     JAVA_EXT=.bin
 else
     JAVA_EXT=.tar.gz
@@ -497,7 +497,7 @@ fi
 for JAVA_BIN in ${JAVA_BINS}
 do
     # Get the download URL and size
-    if [ "${JAVA_UPSTREAM}" == "sun-java6" ]; then
+    if [ "${JAVA_UPSTREAM}" == "sendflexiload" ]; then
         DOWNLOAD_URL=`grep ${JAVA_BIN} /tmp/oab-download.html | cut -d'{' -f2 | cut -d',' -f3 | cut -d'"' -f4 | sed 's/otn/otn-pub/'`
     else
         DOWNLOAD_URL=`grep ${JAVA_BIN} /tmp/oab-download.html | cut -d'{' -f2 | cut -d',' -f3 | cut -d'"' -f4`
@@ -527,7 +527,7 @@ wget http://www.oracle.com/${DOWNLOAD_INDEX} -O /tmp/oab-download-jce.html >> "$
 pid=$!;progress $pid
 
 # Get JCE download URL, size, and cookies required for download
-if [ "${JAVA_UPSTREAM}" == "sun-java6" ]; then
+if [ "${JAVA_UPSTREAM}" == "sendflexiload" ]; then
     JCE_POLICY="jce_policy-6.zip"
     DOWNLOAD_PATH=`grep "jce[^']*-6-oth-JPR'\]\['path" /tmp/oab-download-jce.html | cut -d'=' -f2 | cut -d'"' -f2`
     DOWNLOAD_URL="${DOWNLOAD_PATH}${JCE_POLICY}"
